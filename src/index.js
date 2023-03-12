@@ -10,10 +10,13 @@ root.render(
   </React.StrictMode>
 );
 
-// tech:
+// -- tech:
 // tailwind css
 // react-icons
+// react-chartjs-2
 
-/**
- * 
+/** -- api
+ * coingecko
+ * coinmarketcap
+ * currencylayer
 */

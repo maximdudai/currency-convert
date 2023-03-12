@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { currencies } from "currencies.json";
+import CurrencyList from "./CurrencyList.js/CurrencyList";
+
+import { TbTransform } from 'react-icons/tb';
 
 import './Convert.css';
 
-import CurrencyList from "./CurrencyList.js/CurrencyList";
 
 export default function Convert() {
 
@@ -18,16 +20,20 @@ export default function Convert() {
         setConvertTo(e.target.value);
     };
 
+    const toSelectedCurrency = (curr) => {
+        console.log(curr.target);
+    };
+
     const filterCurrencyFrom = currencies.filter(_cur => {
-        return _cur.namePlural.includes(convertFrom);
+        return _cur.name.includes(convertFrom);
     });
 
     const filterCurrencyTo = currencies.filter(_cur => {
-        return _cur.namePlural.includes(convertTo);
+        return _cur.name.includes(convertTo);
     });
 
     return (
-        <div className="w-full mt-24 p-2 md:w-1/2">
+        <div className="w-full mt-12 p-2 md:w-1/2">
 
             <div className="convertForm w-full flex flex-col md:flex-row">
 
@@ -82,17 +88,31 @@ export default function Convert() {
                             id="tocurrency"
                             type={'text'}
                             min={0}
-                            placeholder={'EUR - Euro'}
+                            placeholder={'US Dollar - USD'}
                             onInput={changeToCurrency}
 
                         />
                     </div>
 
-                    <CurrencyList filterList={filterCurrencyTo}/>
+                    <CurrencyList filterList={filterCurrencyTo} clickedCurrency={toSelectedCurrency}/>
                 </div>
 
             </div>
-        
+
+            <div className="bg-slate-700 mt-3 w-full flex items-center rounded p-2 text-white font-bold text-lg">
+                <p>
+                    <span className="currencyResult">{'USD:'}</span>
+                    <span className="currencyAmount ml-2">{`$0`}</span>
+                </p>
+            </div>
+
+            <div className="convertCurrency mt-5 w-full flex justify-center items-center">
+                <button className="w-full flex justify-center items-center bg-slate-600 text-center p-2 rounded-full text-lg uppercase text-white font-bold md:w-1/3 hover:bg-slate-500">
+                    <span className="mr-4">convert</span>
+                    <TbTransform />
+                </button>
+            </div>
+            
         </div>
     );
 }

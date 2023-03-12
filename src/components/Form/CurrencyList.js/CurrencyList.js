@@ -1,6 +1,6 @@
 import './CurrencyStyle.css';
 
-export default function CurrencyList ({filterList}) {
+export default function CurrencyList ({filterList, clickedCurrency}) {
 
     return (
         <div style={{
@@ -13,14 +13,15 @@ export default function CurrencyList ({filterList}) {
             <ul className="w-[95%]">
                 {
 
-                    filterList.map((_cur) => {
-                        return <li>
-                        {
-                            <button className="currencyInfo w-full flex justify-between bg-sl p-0.5 rounded m-2 bg-slate-500 hover:bg-slate-400">
-                                <span className="currencyName text-left">{_cur.namePlural}</span>
-                                <span className="currencyName">{_cur.code}</span>
-                            </button>
-                        }
+                    filterList.map((_cur, index) => {
+                        return <li
+                            id={index}
+                            key={index}
+                            onClick={clickedCurrency}
+                            className="currencyInfo cursor-pointer w-full flex text-white justify-between bg-sl p-0.5 rounded m-2 bg-slate-500 hover:bg-slate-400"
+                        >
+                            <span className="currencyName text-left">{_cur.namePlural}</span>
+                            <span className="currencyName">{_cur.code}</span>
                         </li>
                     })
                 }
