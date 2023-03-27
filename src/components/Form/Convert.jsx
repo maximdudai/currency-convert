@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { currencies } from "currencies.json";
 import CurrencyList from "./CurrencyList.js/CurrencyList";
 
@@ -7,14 +7,26 @@ import { BiErrorAlt } from 'react-icons/bi'
 
 import './Convert.css';
 
-
-// my4HEDWUXAUGeyCS5IMJfGUjmFDTvS65
 export default function Convert() {
 
+    const convertFromRef = useRef(null);
+    const convertToRef = useRef(null);
+
+    const convertAmount = useRef(0);
+
     const [convertFrom, setConvertFrom] = useState('');
+    const [convertFromCode, setConvertFromCode] = useState('EUR');
+
     const [convertTo, setConvertTo] = useState('');
+    const [convertToCode, setConvertToCode] = useState('USD');
+    
     const [convertResult, setConvertResult] = useState(0);
+
     const [errorMessage, setErrorMessage] = useState('');
+
+    const onConvertInput = (convValue) => {
+        convertAmount.current = convValue.target.value;
+    }
 
     const changeFromCurrency = (e) => {
         setConvertFrom(e.target.value);
@@ -25,7 +37,13 @@ export default function Convert() {
     };
 
     const toSelectedCurrency = (curr) => {
-        console.log(curr.target);
+        const currencyPlural = curr.currentTarget.dataset.currencyCode;
+        setConvertToCode(currencyPlural);
+    };
+
+    const fromSelectedCurrency = (curr) => {
+        const currencyPlural = curr.currentTarget.dataset.currencyCode;
+        setConvertFromCode(currencyPlural);
     };
 
     const filterCurrencyFrom = currencies.filter(_cur => {
@@ -35,15 +53,10 @@ export default function Convert() {
     const filterCurrencyTo = currencies.filter(_cur => {
         return _cur.name.includes(convertTo);
     });
-
-    const onError = (_err) => {
-        setErrorMessage(_err);
-    };
-
     const onConvertPressed = async () => {
 
-        if(!convertTo || !convertFrom)
-            return setErrorMessage('please select a currency to convert!');
+        if(!convertToCode || !convertFromCode || !convertAmount.current)
+            return setErrorMessage('Please specify the amount to be converted, the currency from which it will be converted, and the currency to which it will be converted.');
 
         const myHeaders = new Headers();
         myHeaders.append("apikey", "my4HEDWUXAUGeyCS5IMJfGUjmFDTvS65");
@@ -54,18 +67,26 @@ export default function Convert() {
           headers: myHeaders
         };
         
-        const valueData = await fetch("https://api.apilayer.com/currency_data/convert?to=EUR&from=USD&amount=50", requestOptions);
+        const valueData = await fetch(`https://api.apilayer.com/currency_data/convert?to=${convertToCode}&from=${convertFromCode}&amount=${convertAmount.current}`, requestOptions);
         const response = await valueData.json();
-        
+
         const result = response.result;
         setConvertResult(result);
+
+        resetConvertData();
     };
+
+    function resetConvertData() {
+        setErrorMessage('');
+        convertAmount.current = 0;
+        setConvertFrom('')
+        setConvertFromCode('');
+    }
 
     return (
         <div className="w-full mt-12 p-2 md:w-1/2">
 
-        {/* ${errorMessage ? '' : 'hidden'} */}
-            <div className={`errorMessage flex items-center text-white p-2 text-lg`}>
+            <div className={`${errorMessage ? '' : 'hidden'} errorMessage flex items-center text-white p-2 text-lg`}>
                 <span className="p-2 mr-3 text-red-400 border-[1px] border-gray-400 rounded-lg"><BiErrorAlt /></span>
                 <p>{errorMessage || 'Currency Convert: please select a currency to convert'}</p>
             </div>
@@ -80,11 +101,13 @@ export default function Convert() {
                         </label>
 
                         <input 
+                            onInput={onConvertInput}
                             className="bg-transparent w-full focus:outline-none pl-2 font-bold"
                             id="currencyamount"
                             type={'number'}
                             min={0}
                             placeholder={'100'}
+
                         />
 
                     </div>
@@ -109,7 +132,7 @@ export default function Convert() {
 
                     </div>
 
-                    <CurrencyList filterList={filterCurrencyFrom}/>
+                    <CurrencyList filterList={filterCurrencyFrom} clickedCurrency={fromSelectedCurrency} forwardedRef={convertFromRef}/>
                 </div>
 
                 <div className="convertTo p-2">
@@ -129,20 +152,16 @@ export default function Convert() {
                         />
                     </div>
 
-                    <CurrencyList filterList={filterCurrencyTo} clickedCurrency={toSelectedCurrency}/>
+                    <CurrencyList filterList={filterCurrencyTo} clickedCurrency={toSelectedCurrency} forwardedRef={convertToRef}/>
                 </div>
 
             </div>
 
             <div className="bg-slate-700 mt-3 w-full flex items-center rounded p-2 text-white font-bold text-lg">
                 <p>
-                    <span className="currencyResult">{'USD:'}</span>
+                    <span className="currencyResult">{convertToCode}:</span>
                     <span className="currencyAmount ml-2">
-                        {
-                        convertResult.toLocaleString("en-US", {
-                            style: "currency", 
-                            currency: "USD"
-                        }) || '$0'}
+                        {convertResult.toLocaleString('en-US')}
                     </span>
                 </p>
             </div>
