@@ -16,8 +16,7 @@ export default function Navbar() {
                 </div>
                 
                 <div className="currencyType text-white text-3xl flex items-center">
-                    <button className="bg-slate-700 ml-2 p-2 px-5 rounded-full uppercase text-sm hover:bg-slate-500 font-bold">fiat</button>
-                    <button className="bg-slate-700 ml-4 p-2 px-5 rounded-full uppercase text-sm hover:bg-slate-500 font-bold">crypto</button>
+                    <button className="bg-slate-700 ml-2 p-2 px-5 rounded-full uppercase text-sm hover:bg-slate-500 font-bold">exchange</button>
                 </div>
 
                 <div className="converName typeTitle hidden md:flex items-center">

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, lazy, Suspense } from "react";
 import { currencies } from "currencies.json";
 import CurrencyList from "./CurrencyList.js/CurrencyList";
 
@@ -20,7 +20,7 @@ export default function Convert() {
     const [convertTo, setConvertTo] = useState('');
     const [convertToCode, setConvertToCode] = useState('USD');
     
-    const [convertResult, setConvertResult] = useState(0);
+    const [convertResult, setConvertResult] = useState(null);
 
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -78,10 +78,12 @@ export default function Convert() {
 
     function resetConvertData() {
         setErrorMessage('');
-        convertAmount.current = 0;
+        convertAmount.current.reset();
         setConvertFrom('')
         setConvertFromCode('');
     }
+
+    const LazyResultLoading = lazy(() => import('./component/ConversionResult'));
 
     return (
         <div className="w-full mt-12 p-2 md:w-1/2">
@@ -101,6 +103,7 @@ export default function Convert() {
                         </label>
 
                         <input 
+                            defaultValue={convertAmount.current}
                             onInput={onConvertInput}
                             className="bg-transparent w-full focus:outline-none pl-2 font-bold"
                             id="currencyamount"
@@ -158,12 +161,9 @@ export default function Convert() {
             </div>
 
             <div className="bg-slate-700 mt-3 w-full flex items-center rounded p-2 text-white font-bold text-lg">
-                <p>
-                    <span className="currencyResult">{convertToCode}:</span>
-                    <span className="currencyAmount ml-2">
-                        {convertResult.toLocaleString('en-US')}
-                    </span>
-                </p>
+                <Suspense fallback={<div>Converting...</div>}>
+                    {convertResult && <LazyResultLoading convertToCode={convertToCode} convertResult={convertResult} />}
+                </Suspense>
             </div>
 
             <div className="convertCurrency mt-5 w-full flex justify-center items-center">
