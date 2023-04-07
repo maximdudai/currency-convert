@@ -4,7 +4,7 @@ const ConversionResult = ({ convertToCode, convertResult }) => {
             <span className="currencyResult">{convertToCode}:</span>
             <span className="currencyAmount ml-2">
                 {
-                    convertResult.toLocaleString('en-US') ?? 'none'
+                    convertResult.toLocaleString('en-US')
                 }
             </span>
         </p>

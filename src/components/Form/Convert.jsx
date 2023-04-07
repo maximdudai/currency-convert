@@ -11,18 +11,15 @@ export default function Convert() {
 
     const convertFromRef = useRef(null);
     const convertToRef = useRef(null);
-
     const convertAmount = useRef(0);
-
     const [convertFrom, setConvertFrom] = useState('');
     const [convertFromCode, setConvertFromCode] = useState('EUR');
-
     const [convertTo, setConvertTo] = useState('');
     const [convertToCode, setConvertToCode] = useState('USD');
-    
     const [convertResult, setConvertResult] = useState(null);
-
     const [errorMessage, setErrorMessage] = useState('');
+
+    const [convertingData, setConvertingData] = useState(false);
 
     const onConvertInput = (convValue) => {
         convertAmount.current = convValue.target.value;
@@ -39,11 +36,13 @@ export default function Convert() {
     const toSelectedCurrency = (curr) => {
         const currencyPlural = curr.currentTarget.dataset.currencyCode;
         setConvertToCode(currencyPlural);
+        setConvertTo(currencyPlural);
     };
 
     const fromSelectedCurrency = (curr) => {
         const currencyPlural = curr.currentTarget.dataset.currencyCode;
         setConvertFromCode(currencyPlural);
+        setConvertFrom(currencyPlural);
     };
 
     const filterCurrencyFrom = currencies.filter(_cur => {
@@ -55,8 +54,13 @@ export default function Convert() {
     });
     const onConvertPressed = async () => {
 
+        if(errorMessage)
+            setErrorMessage('');
+
         if(!convertToCode || !convertFromCode || !convertAmount.current)
             return setErrorMessage('Please specify the amount to be converted, the currency from which it will be converted, and the currency to which it will be converted.');
+
+        setConvertingData(true);
 
         const myHeaders = new Headers();
         myHeaders.append("apikey", "my4HEDWUXAUGeyCS5IMJfGUjmFDTvS65");
@@ -66,7 +70,7 @@ export default function Convert() {
           redirect: 'follow',
           headers: myHeaders
         };
-        
+
         const valueData = await fetch(`https://api.apilayer.com/currency_data/convert?to=${convertToCode}&from=${convertFromCode}&amount=${convertAmount.current}`, requestOptions);
         const response = await valueData.json();
 
@@ -78,9 +82,13 @@ export default function Convert() {
 
     function resetConvertData() {
         setErrorMessage('');
-        convertAmount.current.reset();
+        convertAmount.current = '';
         setConvertFrom('')
         setConvertFromCode('');
+        setConvertTo('')
+        setConvertingData(false);
+        convertFromRef.current = null;
+        convertToRef.current = null;
     }
 
     const LazyResultLoading = lazy(() => import('./component/ConversionResult'));
@@ -101,18 +109,16 @@ export default function Convert() {
                         <label htmlFor="currencyamount">
                             Amount:
                         </label>
-
                         <input 
-                            defaultValue={convertAmount.current}
                             onInput={onConvertInput}
+                            ref={convertAmount}
                             className="bg-transparent w-full focus:outline-none pl-2 font-bold"
                             id="currencyamount"
                             type={'number'}
                             min={0}
                             placeholder={'100'}
-
+                            defaultValue={convertAmount.current}
                         />
-
                     </div>
                 </div>
 
@@ -125,6 +131,7 @@ export default function Convert() {
                         </label>
 
                         <input 
+                            value={convertFrom}
                             className="bg-transparent w-full focus:outline-none pl-2 font-bold"
                             type={'text'}
                             min={0}
@@ -145,6 +152,7 @@ export default function Convert() {
                         </label>
 
                         <input 
+                            value={convertTo}
                             className="bg-transparent w-full focus:outline-none pl-2 font-bold"
                             id="tocurrency"
                             type={'text'}
@@ -161,9 +169,12 @@ export default function Convert() {
             </div>
 
             <div className="bg-slate-700 mt-3 w-full flex items-center rounded p-2 text-white font-bold text-lg">
-                <Suspense fallback={<div>Converting...</div>}>
-                    {convertResult && <LazyResultLoading convertToCode={convertToCode} convertResult={convertResult} />}
-                </Suspense>
+                {
+                    !convertingData && !convertResult ? 'Select currency to convert' :
+                    <Suspense fallback={<div>Converting...</div>}>
+                        {convertResult && <LazyResultLoading convertToCode={convertToCode} convertResult={convertResult} />}
+                    </Suspense>
+                }
             </div>
 
             <div className="convertCurrency mt-5 w-full flex justify-center items-center">
