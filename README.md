@@ -1,5 +1,5 @@
 
-## Exchange Money
+## [Exchange Money](https://maxdev-currency.netlify.app/) - Preview
 
 Exchange App is a web application that allows users to exchange money and cryptocurrencies using exchange rates from the CoinMarketCap and CurrencyLayer APIs. The app is built using React and Tailwind CSS and utilizes React Icons for icons and Axios for API consumption.
 
